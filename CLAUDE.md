@@ -18,7 +18,7 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 Stream Deck plugin (SDK v3, Node 24, Stream Deck 7.1+) showing the in-game time and population of the DayZ server you're on.
 
-- `npm run build` bundles `src/` into `com.jamiebono.dayzserver.sdPlugin/bin/plugin.js`; `npm run watch` rebuilds and restarts the plugin on change.
+- `npm run build` bundles `src/` into `com.dayzserver.streamdeck.sdPlugin/bin/plugin.js`; `npm run watch` rebuilds and restarts the plugin on change.
 - `npm test` runs the unit tests; `npm run typecheck`; `npm run validate` checks the manifest and images.
 - The plugin is linked into Stream Deck with `npm run link` (a symlink in `%APPDATA%\Elgato\StreamDeck\Plugins`). Stream Deck only discovers a newly linked plugin on app start.
 

@@ -2,14 +2,14 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "DayZ Server",
   "Version": "0.1.0.0",
-  "Author": "Jamie Bono",
+  "Author": "DayZ Server Plugin",
   "Description": "Shows the in-game time and population of the DayZ server you're playing on.",
   "Category": "DayZ Server",
   "CategoryIcon": "imgs/category",
   "Icon": "imgs/plugin",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 2,
-  "UUID": "com.jamiebono.dayzserver",
+  "UUID": "com.dayzserver.streamdeck",
   "OS": [
     {
       "Platform": "windows",
@@ -25,7 +25,7 @@
   "Actions": [
     {
       "Name": "Server Status",
-      "UUID": "com.jamiebono.dayzserver.status",
+      "UUID": "com.dayzserver.streamdeck.status",
       "Icon": "imgs/actions/status",
       "Tooltip": "In-game time and players on the current DayZ server. Press to refresh.",
       "Controllers": [
@@ -41,7 +41,7 @@
     },
     {
       "Name": "In-Game Time",
-      "UUID": "com.jamiebono.dayzserver.time",
+      "UUID": "com.dayzserver.streamdeck.time",
       "Icon": "imgs/actions/time",
       "Tooltip": "In-game time on the current DayZ server. Press to refresh.",
       "Controllers": [
@@ -57,7 +57,7 @@
     },
     {
       "Name": "Population",
-      "UUID": "com.jamiebono.dayzserver.population",
+      "UUID": "com.dayzserver.streamdeck.population",
       "Icon": "imgs/actions/population",
       "Tooltip": "Players and login queue on the current DayZ server. Press to refresh.",
       "Controllers": [

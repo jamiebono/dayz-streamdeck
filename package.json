@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.jamiebono.dayzserver\"",
+    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.dayzserver.streamdeck\"",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "link": "streamdeck link com.jamiebono.dayzserver.sdPlugin",
-    "restart": "streamdeck restart com.jamiebono.dayzserver",
-    "validate": "streamdeck validate com.jamiebono.dayzserver.sdPlugin",
-    "pack": "streamdeck pack com.jamiebono.dayzserver.sdPlugin"
+    "link": "streamdeck link com.dayzserver.streamdeck.sdPlugin",
+    "restart": "streamdeck restart com.dayzserver.streamdeck",
+    "validate": "streamdeck validate com.dayzserver.streamdeck.sdPlugin",
+    "pack": "streamdeck pack com.dayzserver.streamdeck.sdPlugin"
   },
   "dependencies": {
     "@elgato/streamdeck": "^3.0.2"
