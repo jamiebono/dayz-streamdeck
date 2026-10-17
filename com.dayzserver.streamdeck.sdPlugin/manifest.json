@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "DayZ Server",
-  "Version": "0.1.0.0",
+  "Version": "0.2.0.0",
   "Author": "DayZ Server Plugin",
   "Description": "Shows the in-game time and population of the DayZ server you're playing on.",
   "Category": "DayZ Server",
