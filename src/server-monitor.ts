@@ -1,11 +1,11 @@
 import streamDeck from "@elgato/streamdeck";
 import { queryInfo } from "./dayz/a2s";
-import { advanceClock, formatClock } from "./dayz/clock";
-import { type DayzStatus, parseKeywords } from "./dayz/keywords";
+import { advanceClock } from "./dayz/clock";
+import { type ClockTime, type DayzStatus, parseKeywords } from "./dayz/keywords";
 import { findLastServer, type ServerEndpoint } from "./dayz/launch-args";
 import { isDayzRunning } from "./dayz/process";
+import { REFRESH_SECONDS } from "./settings";
 
-const POLL_MS = 15_000;
 const TICK_MS = 1_000;
 
 /** What the keys render. */
@@ -18,7 +18,9 @@ export type Snapshot =
       /** False when the last query failed; values are from the previous answer, if any. */
       reachable: boolean;
       name: string;
-      time: string | null;
+      /** `ip:gamePort`, what players paste into a launcher's direct connect. */
+      address: string;
+      time: ClockTime | null;
       players: number | null;
       maxPlayers: number | null;
       queue: number;
@@ -43,6 +45,7 @@ class ServerMonitor {
   private listeners = new Set<Listener>();
   private pollTimer: NodeJS.Timeout | undefined;
   private tickTimer: NodeJS.Timeout | undefined;
+  private pollMs = REFRESH_SECONDS.default * 1000;
 
   private endpoint: ServerEndpoint | null = null;
   private connected = false;
@@ -65,9 +68,24 @@ class ServerMonitor {
     void this.poll();
   }
 
+  /** The latest state, for re-rendering a key whose settings changed. */
+  current(): Snapshot {
+    return this.snapshot();
+  }
+
+  setRefreshSeconds(seconds: number): void {
+    const ms = seconds * 1000;
+    if (ms === this.pollMs) return;
+    this.pollMs = ms;
+    if (this.listeners.size > 0) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = setInterval(() => void this.poll(), this.pollMs);
+    }
+  }
+
   private start() {
     void this.poll();
-    this.pollTimer = setInterval(() => void this.poll(), POLL_MS);
+    this.pollTimer = setInterval(() => void this.poll(), this.pollMs);
     this.tickTimer = setInterval(() => this.emit(), TICK_MS);
   }
 
@@ -111,17 +129,17 @@ class ServerMonitor {
     if (!this.endpoint) return { kind: "no-server" };
 
     const a = this.answer;
-    let time: string | null = null;
-    if (a?.status.time) {
-      const elapsed = Date.now() - a.answeredAt;
-      time = formatClock(advanceClock(a.status.time, elapsed, a.status.dayAcceleration, a.status.nightAcceleration));
-    }
+    const time = a?.status.time
+      ? advanceClock(a.status.time, Date.now() - a.answeredAt, a.status.dayAcceleration, a.status.nightAcceleration)
+      : null;
+    const address = `${this.endpoint.host}:${this.endpoint.gamePort}`;
 
     return {
       kind: "server",
       connected: this.connected,
       reachable: this.reachable,
-      name: a?.name ?? `${this.endpoint.host}:${this.endpoint.gamePort}`,
+      name: a?.name ?? address,
+      address,
       time,
       players: a?.players ?? null,
       maxPlayers: a?.maxPlayers ?? null,

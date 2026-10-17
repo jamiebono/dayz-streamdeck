@@ -37,7 +37,8 @@
         {
           "Image": "imgs/actions/status-key"
         }
-      ]
+      ],
+      "PropertyInspectorPath": "ui/key.html"
     },
     {
       "Name": "In-Game Time",
@@ -53,7 +54,8 @@
         {
           "Image": "imgs/actions/time-key"
         }
-      ]
+      ],
+      "PropertyInspectorPath": "ui/key.html"
     },
     {
       "Name": "Population",
@@ -69,7 +71,8 @@
         {
           "Image": "imgs/actions/population-key"
         }
-      ]
+      ],
+      "PropertyInspectorPath": "ui/key.html"
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceClock, formatClock } from "../src/dayz/clock";
+import { advanceClock, formatClock, isDaytime } from "../src/dayz/clock";
 
 const MINUTE = 60_000;
 
@@ -27,5 +27,19 @@ describe("advanceClock", () => {
 });
 
 describe("formatClock", () => {
-  it("zero-pads", () => expect(formatClock({ hours: 6, minutes: 5 })).toBe("06:05"));
+  it("zero-pads in 24h", () => expect(formatClock({ hours: 6, minutes: 5 })).toEqual({ time: "06:05", suffix: "" }));
+  it("uses 12 for noon and midnight in 12h", () => {
+    expect(formatClock({ hours: 0, minutes: 30 }, "12h")).toEqual({ time: "12:30", suffix: "AM" });
+    expect(formatClock({ hours: 12, minutes: 0 }, "12h")).toEqual({ time: "12:00", suffix: "PM" });
+    expect(formatClock({ hours: 19, minutes: 7 }, "12h")).toEqual({ time: "7:07", suffix: "PM" });
+  });
+});
+
+describe("isDaytime", () => {
+  it("is day from 06:00 up to 20:00", () => {
+    expect(isDaytime({ hours: 5, minutes: 59 })).toBe(false);
+    expect(isDaytime({ hours: 6, minutes: 0 })).toBe(true);
+    expect(isDaytime({ hours: 19, minutes: 59 })).toBe(true);
+    expect(isDaytime({ hours: 20, minutes: 0 })).toBe(false);
+  });
 });

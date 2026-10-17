@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DayZ Server settings</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 8px 12px; background: #2d2d2d; color: #d8d8d8; font: 9pt "Segoe UI", Arial, sans-serif; }
+  .row { display: flex; align-items: center; min-height: 30px; gap: 8px; }
+  .row > label:first-child { flex: 0 0 34%; color: #969696; text-align: right; }
+  .row > :not(label:first-child) { flex: 1; min-width: 0; }
+  select, input[type="text"], input[type="number"] {
+    background: #3d3d3d; color: #d8d8d8; border: 0; border-radius: 3px; height: 24px; padding: 0 6px; font: inherit; box-sizing: border-box; width: 100%;
+  }
+  input[type="range"] { width: 100%; accent-color: #0a84ff; }
+  input[type="color"] { width: 40px; height: 24px; border: 0; padding: 0; background: none; flex: 0 0 40px !important; }
+  .inline { display: flex; align-items: center; gap: 8px; }
+  .value { flex: 0 0 34px !important; text-align: right; color: #d8d8d8; }
+  button { background: #3d3d3d; color: #d8d8d8; border: 0; border-radius: 3px; height: 24px; padding: 0 10px; font: inherit; cursor: pointer; flex: 0 0 auto !important; }
+  button:hover { background: #4a4a4a; }
+  .hint { color: #7a7a7a; font-size: 8pt; margin: -2px 0 6px 36%; }
+  hr { border: 0; border-top: 1px solid #3d3d3d; margin: 8px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <label for="label">Label</label>
+    <select id="label" data-setting="label">
+      <option value="none">Default</option>
+      <option value="server">Server name</option>
+      <option value="custom">Custom text</option>
+    </select>
+  </div>
+  <div class="row" id="customLabelRow" hidden>
+    <label for="customLabel">Text</label>
+    <input id="customLabel" data-setting="customLabel" type="text" maxlength="40" placeholder="e.g. Nasdara" />
+  </div>
+
+  <div class="row" data-for="status time">
+    <label for="dayNight">Day / night</label>
+    <select id="dayNight" data-setting="dayNight">
+      <option value="icon">Sun / moon icon</option>
+      <option value="tint">Background tint</option>
+      <option value="off">Off</option>
+    </select>
+  </div>
+  <div class="row" data-for="status time">
+    <label for="clock">Clock</label>
+    <select id="clock" data-setting="clock">
+      <option value="24h">24-hour</option>
+      <option value="12h">12-hour</option>
+    </select>
+  </div>
+  <div class="row" data-for="status population">
+    <label for="showQueue">Login queue</label>
+    <div class="inline"><input id="showQueue" data-setting="showQueue" type="checkbox" /><span>Show +N when queued</span></div>
+  </div>
+
+  <div class="row">
+    <label for="pressAction">Key press</label>
+    <select id="pressAction" data-setting="pressAction">
+      <option value="refresh">Refresh now</option>
+      <option value="copy">Copy server IP:port</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>Colors</label>
+    <div class="inline">
+      <input id="textColor" data-setting="textColor" type="color" title="Text" />
+      <input id="accentColor" data-setting="accentColor" type="color" title="Queue / accent" />
+      <button id="resetColors" type="button">Reset</button>
+    </div>
+  </div>
+  <div class="hint">Text, then queue accent.</div>
+
+  <hr />
+  <div class="row">
+    <label for="refreshSeconds">Refresh every</label>
+    <div class="inline">
+      <input id="refreshSeconds" type="range" min="5" max="120" step="5" />
+      <span class="value" id="refreshValue"></span>
+    </div>
+  </div>
+  <div class="hint">Applies to all DayZ keys.</div>
+
+<script>
+  // Defaults mirror DEFAULT_KEY_OPTIONS / REFRESH_SECONDS in src/settings.ts.
+  const DEFAULTS = {
+    dayNight: "icon", label: "none", customLabel: "", clock: "24h", showQueue: true,
+    pressAction: "refresh", textColor: "#f2f2f2", accentColor: "#f5a623",
+  };
+  const DEFAULT_REFRESH = 15;
+
+  let socket, context, settings = {}, globalSettings = {};
+  const $ = (id) => document.getElementById(id);
+  const fields = [...document.querySelectorAll("[data-setting]")];
+
+  function send(event, payload) {
+    socket.send(JSON.stringify(payload === undefined ? { event, context } : { event, context, payload }));
+  }
+
+  function render() {
+    const s = { ...DEFAULTS, ...settings };
+    for (const el of fields) {
+      const key = el.dataset.setting;
+      if (el.type === "checkbox") el.checked = !!s[key];
+      else el.value = s[key];
+    }
+    $("customLabelRow").hidden = s.label !== "custom";
+    const refresh = globalSettings.refreshSeconds ?? DEFAULT_REFRESH;
+    $("refreshSeconds").value = refresh;
+    $("refreshValue").textContent = `${refresh}s`;
+  }
+
+  for (const el of fields) {
+    const event = el.type === "text" ? "input" : "change";
+    el.addEventListener(event, () => {
+      settings = { ...DEFAULTS, ...settings, [el.dataset.setting]: el.type === "checkbox" ? el.checked : el.value };
+      send("setSettings", settings);
+      render();
+    });
+  }
+
+  $("resetColors").addEventListener("click", () => {
+    settings = { ...DEFAULTS, ...settings, textColor: DEFAULTS.textColor, accentColor: DEFAULTS.accentColor };
+    send("setSettings", settings);
+    render();
+  });
+
+  $("refreshSeconds").addEventListener("input", (e) => ($("refreshValue").textContent = `${e.target.value}s`));
+  $("refreshSeconds").addEventListener("change", (e) => {
+    globalSettings = { ...globalSettings, refreshSeconds: Number(e.target.value) };
+    send("setGlobalSettings", globalSettings);
+  });
+
+  // Called by Stream Deck when the inspector opens.
+  window.connectElgatoStreamDeckSocket = (port, uuid, registerEvent, _info, actionInfo) => {
+    context = uuid;
+    const action = JSON.parse(actionInfo);
+    settings = action.payload?.settings ?? {};
+
+    // Hide rows that don't apply to this action (e.g. the queue toggle on the time key).
+    const layout = action.action.split(".").pop();
+    for (const row of document.querySelectorAll("[data-for]")) row.hidden = !row.dataset.for.split(" ").includes(layout);
+
+    socket = new WebSocket(`ws://127.0.0.1:${port}`);
+    socket.onopen = () => {
+      socket.send(JSON.stringify({ event: registerEvent, uuid }));
+      send("getGlobalSettings");
+      render();
+    };
+    socket.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.event === "didReceiveGlobalSettings") {
+        globalSettings = data.payload.settings ?? {};
+        render();
+      } else if (data.event === "didReceiveSettings") {
+        settings = data.payload.settings ?? {};
+        render();
+      }
+    };
+  };
+</script>
+</body>
+</html>
