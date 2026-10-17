@@ -10,39 +10,66 @@
   "CodePath": "bin/plugin.js",
   "SDKVersion": 2,
   "UUID": "com.jamiebono.dayzserver",
-  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
-  "Software": { "MinimumVersion": "7.1" },
-  "Nodejs": { "Version": "24", "Debug": "enabled" },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "Nodejs": {
+    "Version": "24"
+  },
   "Actions": [
     {
       "Name": "Server Status",
       "UUID": "com.jamiebono.dayzserver.status",
       "Icon": "imgs/actions/status",
       "Tooltip": "In-game time and players on the current DayZ server. Press to refresh.",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": false,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/status-key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/status-key"
+        }
+      ]
     },
     {
       "Name": "In-Game Time",
       "UUID": "com.jamiebono.dayzserver.time",
       "Icon": "imgs/actions/time",
       "Tooltip": "In-game time on the current DayZ server. Press to refresh.",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": false,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/time-key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/time-key"
+        }
+      ]
     },
     {
       "Name": "Population",
       "UUID": "com.jamiebono.dayzserver.population",
       "Icon": "imgs/actions/population",
       "Tooltip": "Players and login queue on the current DayZ server. Press to refresh.",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": false,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/population-key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/population-key"
+        }
+      ]
     }
   ]
 }
