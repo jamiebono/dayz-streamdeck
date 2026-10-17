@@ -34,3 +34,18 @@ npm run link       # link the plugin into Stream Deck (restart the app to pick i
 npm run watch      # rebuild and restart the plugin on change
 npm run pack       # build the .streamDeckPlugin file
 ```
+
+## Releasing
+
+CI runs on every push to `main` and every pull request: typecheck, tests, build, manifest validation, and a packed plugin uploaded as a workflow artifact.
+
+To publish a release:
+
+```bash
+npm run set-version -- 0.3.0
+git commit -am "Release 0.3.0"
+git tag v0.3.0
+git push origin main v0.3.0
+```
+
+The tag triggers the release workflow, which checks the tag matches the manifest version, packs the plugin and publishes a GitHub release with the `.streamDeckPlugin` attached and generated notes.

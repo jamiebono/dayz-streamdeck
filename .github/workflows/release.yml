@@ -1,0 +1,51 @@
+name: Release
+
+# Push a tag like v0.3.0 (see `npm run set-version`) to publish a release
+# with the packed plugin attached.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check tag matches manifest version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          manifest=$(node -p 'require("./com.dayzserver.streamdeck.sdPlugin/manifest.json").Version')
+          package=$(node -p 'require("./package.json").version')
+          if [ "$manifest" != "$tag.0" ] || [ "$package" != "$tag" ]; then
+            echo "::error::Tag v$tag does not match manifest $manifest / package.json $package. Run npm run set-version -- $tag and commit."
+            exit 1
+          fi
+
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run validate
+
+      - name: Pack plugin
+        run: npx streamdeck pack com.dayzserver.streamdeck.sdPlugin --output dist --force
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.streamDeckPlugin --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.streamDeckPlugin --title "$GITHUB_REF_NAME" --generate-notes --verify-tag
+          fi
